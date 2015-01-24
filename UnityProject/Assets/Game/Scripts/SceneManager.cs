@@ -12,6 +12,7 @@ public class SceneManager : MonoBehaviour {
 	[Range(1, 60)] public int timePunishmentOnFalure;
 	public Role role = Role.All;
 	public string sceneAction;
+	public Animator animationState;
 	
 	public event Action SceneFailed;
 	public event Action SceneComplete;
@@ -19,18 +20,17 @@ public class SceneManager : MonoBehaviour {
 	private float timeOut = 0;
 	private IMechanic mechanicType;
 	private ISuccessByTime successByTime;
-	private IMultipleExecution multipleExecution;
 
 	void OnEnable()
 	{
 		mechanicType = GetComponent(typeof(IMechanic)) as IMechanic;
-		multipleExecution = mechanicType as IMultipleExecution;
 		successByTime = mechanicType as ISuccessByTime;
 		timeOut = maxTime * GameManager.totalTimePercentage;
 		mechanicType.MechanicComplete += SuccessMechanic;
 		mechanicType.MechanicFailed += FailMechanic;
+		animationState = GetComponent<Animator>();
 	}
-
+	
 	void OnDisable()
 	{
 		mechanicType.MechanicComplete -= SuccessMechanic;
@@ -39,7 +39,28 @@ public class SceneManager : MonoBehaviour {
 
 	void SuccessMechanic()
 	{
+		animationState.SetTrigger("Complete");
+		StartCoroutine (SceneCompleteCoroutine ());
+	}
+
+	IEnumerator SceneCompleteCoroutine()
+	{
+		int nameHash = Animator.StringToHash("Complete");
+		while (animationState.IsInTransition(0) && animationState.GetNextAnimatorStateInfo(0).nameHash == nameHash)
+		{
+			yield return null;
+		}
 		if (SceneComplete != null) SceneComplete();
+	}
+
+	IEnumerator SceneFailCoroutine()
+	{
+		int nameHash = Animator.StringToHash("Fail");
+		while (animationState.IsInTransition(0) && animationState.GetNextAnimatorStateInfo(0).nameHash == nameHash)
+		{
+			yield return null;
+		}
+		if (SceneFailed != null) SceneFailed();
 	}
 
 	void FailMechanic()
@@ -55,7 +76,12 @@ public class SceneManager : MonoBehaviour {
 			if (successByTime != null) successByTime.ReportTime(timeOut);
 			if (timeOut <= 0)
 			{
-				if (successByTime == null && SceneFailed != null) SceneFailed(); 
+				if (successByTime == null)
+				{
+					animationState.SetTrigger("Fail");
+					StartCoroutine(SceneFailCoroutine ());
+				}
+
 			}
 		}
 	}
