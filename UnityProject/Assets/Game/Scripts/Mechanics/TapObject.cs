@@ -13,6 +13,7 @@ public class TapObject : MonoBehaviour, IMechanic, IMultipleExecution {
 
 	public Collider2D objectToTap;
 	[Range(0, 60)] public int timesToTap;
+
 	private int completedTap;
 
 	void OnEnable()
