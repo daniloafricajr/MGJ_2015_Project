@@ -12,7 +12,7 @@ public class Trace : MonoBehaviour, IMechanic {
 	public GameObject linePrefab;
 	public GameObject dotPrefab;
 
-	public Vector3[] dotPositions = new Vector3[0];
+	[HideInInspector] public Vector3[] dotPositions = new Vector3[0];
 	public float lineScale = 1;
 	private List<GameObject> finishedLines = new List<GameObject>();
 	private List<GameObject> finishedDots = new List<GameObject>();
