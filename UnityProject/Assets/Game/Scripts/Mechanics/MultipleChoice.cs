@@ -50,7 +50,7 @@ public class MultipleChoice : MonoBehaviour, IMechanic, IMultipleExecution {
 						correctItemList.Remove(choices[i].itemToChoose);
 						if (correctItemList.Count > 0)
 						{
-							if (TimesExecutedChanged != null) TimesExecutedChanged(correctItemList.Count);
+							if (TimesExecutedChanged != null) TimesExecutedChanged(i);
 						}
 						else
 						{
